@@ -1,0 +1,63 @@
+Vagrant.configure("2") do |config|
+    config.vm.provision "shell", inline: "echo Hello"
+  
+    config.vm.define "jenkins" do |jenkins|
+      jenkins.vm.box = "centos/7"
+      jenkins.vm.network 'private_network', ip: "192.168.50.221", virtualbox__intnet: true
+      jenkins.vm.network "forwarded_port", guest: 8080, host: 8082
+      jenkins.vm.network "forwarded_port", guest: 50000, host: 50000
+      jenkins.vm.provider "virtualbox" do |v|
+            v.memory = "4096"
+            v.cpus = "4"
+            v.name = "jenkins"
+      end
+      jenkins.vm.provision "shell", inline: <<-SHELL
+        sudo bash
+        sudo yum update -y
+        sudo yum install yum-utils device-mapper-persistent-data lvm2 -y
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        sudo yum install docker-ce docker-ce-cli containerd.io -y
+      SHELL
+      jenkins.vm.provision "shell", path: "setup-jenkins.sh"
+    end
+
+    config.vm.define "nexus" do |nexus|
+      nexus.vm.box = "centos/7"
+      nexus.vm.network 'private_network', ip: "192.168.50.223", virtualbox__intnet: true
+      nexus.vm.network "forwarded_port", guest: 8081, host: 8081
+      nexus.vm.provider "virtualbox" do |v|
+            v.memory = "4096"
+            v.cpus = "4"
+            v.name = "nexus"
+      end
+      nexus.vm.provision "shell", inline: <<-SHELL
+        sudo bash
+        sudo yum update -y
+        sudo yum install yum-utils device-mapper-persistent-data lvm2 -y
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        sudo yum install docker-ce docker-ce-cli containerd.io -y
+      SHELL
+      nexus.vm.provision "shell", path: "setup-nexus.sh"
+    end
+  
+    config.vm.define "kube" do |kube|
+      kube.vm.box = "centos/7"
+      kube.vm.network 'private_network', ip: "192.168.50.222", virtualbox__intnet: true
+      kube.vm.network "forwarded_port", guest: 6443, host: 6443
+      kube.vm.provider "virtualbox" do |v|
+            v.memory = "4096"
+            v.name = "kube"
+      end
+      kube.vm.provision "shell", inline: <<-SHELL
+        sudo bash
+        sudo yum update -y
+        sudo yum install yum-utils device-mapper-persistent-data lvm2 -y
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        sudo yum install docker-ce docker-ce-cli containerd.io -y
+        yum install wget -y 
+        curl -sfL https://get.k3s.io | sh -
+      SHELL
+      kube.vm.provision "shell", path: "setup-k3s.sh"
+    end
+  end
+  
