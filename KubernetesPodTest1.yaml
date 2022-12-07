@@ -1,6 +1,6 @@
 metadata:
   labels:
-    some-label: some-label-value
+    jenkins: slave
 spec:
   containers:
   - name: maven
