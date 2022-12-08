@@ -26,7 +26,7 @@ spec:
   volumes:
   - name: setting-maven
     hostPath:
-      path: /var/jenkins_home
+      path: /home/vagrant
       type: Directory
   imagePullSecrets:
     - name: secretnexus
