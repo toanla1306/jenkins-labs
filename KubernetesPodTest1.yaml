@@ -4,7 +4,7 @@ metadata:
 spec:
   containers:
   - name: maven
-    image: repository/test/maven:3.8.1-jdk-8
+    image: 192.168.50.223:9001/repository/test/maven:3.8.1-jdk-8
     volumeMounts:
     - mountPath: /root/.m2
       name: setting-maven
@@ -16,7 +16,7 @@ spec:
     - name: CONTAINER_ENV_VAR
       value: maven
   - name: busybox
-    image: repository/test/busybox:latest
+    image: 192.168.50.223:9001/repository/test/busybox:latest
     command:
     - cat
     tty: true
